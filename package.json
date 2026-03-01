@@ -1,6 +1,8 @@
 {
   "name": "reader-electron",
   "version": "0.1.0",
+  "description": "Cross-platform reader with TTS and licensing",
+  "author": "Your Name <you@example.com>",
   "private": true,
   "main": "electron-main/main.js",
   "scripts": {
