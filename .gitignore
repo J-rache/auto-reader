@@ -1,0 +1,9 @@
+# dependencies
+node_modules/
+
+# build output
+/dist
+/out
+
+# local environment variables (contains GH_TOKEN, etc.)
+.env.local

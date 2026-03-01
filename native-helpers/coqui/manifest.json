@@ -1,0 +1,11 @@
+{
+  "models": [
+    {
+      "name": "coqui-small",
+      "version": "1.0",
+      "url": "https://example.com/models/coqui-small.tar.gz",
+      "sha256": "REPLACE_WITH_REAL_SHA256_HASH",
+      "filename": "coqui-small.tar.gz"
+    }
+  ]
+}

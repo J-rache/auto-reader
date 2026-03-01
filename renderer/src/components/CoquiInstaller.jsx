@@ -52,6 +52,20 @@ export default function CoquiInstaller() {
       </div>
       <div style={{ marginTop: 8 }}>
         <button onClick={refreshModels}>Refresh installed models</button>
+        <button style={{ marginLeft: 8 }} onClick={async () => {
+          setProgress(0);
+          window.electronAPI.onCoquiDownloadProgress(p => {
+            setProgress(p.percent ?? null);
+            if (p.done) refreshModels();
+          });
+          try {
+            await window.electronAPI.coquiInstallManifest();
+            alert('Manifest install completed');
+            refreshModels();
+          } catch (err) {
+            alert('Manifest install failed: ' + (err.message || String(err)));
+          }
+        }}>Install from manifest</button>
         <div style={{ marginTop: 6 }}>
           <strong>Installed models:</strong>
           <ul>{models.map(m => <li key={m}>{m}</li>)}</ul>

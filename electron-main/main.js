@@ -4,6 +4,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const axios = require('axios');
 const tar = require('tar');
+const crypto = require('crypto');
 
 let mainWindow;
 let coquiProcess = null;
@@ -184,4 +185,60 @@ ipcMain.handle('coqui-list-models', async () => {
   if (!fs.existsSync(modelsDir)) return [];
   const items = fs.readdirSync(modelsDir, { withFileTypes: true }).map(d => d.name);
   return items;
+});
+
+// Install models from manifest with SHA256 verification
+ipcMain.handle('coqui-install-manifest', async () => {
+  try {
+    const manifestPath = path.join(__dirname, '..', 'native-helpers', 'coqui', 'manifest.json');
+    if (!fs.existsSync(manifestPath)) throw new Error('manifest.json not found');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const models = manifest.models || [];
+    for (const m of models) {
+      const url = m.url;
+      const name = m.name || path.basename(url);
+      const expected = (m.sha256 || '').toLowerCase();
+      if (!url) continue;
+      const modelsDir = path.join(__dirname, '..', 'native-helpers', 'coqui', 'models');
+      if (!fs.existsSync(modelsDir)) fs.mkdirSync(modelsDir, { recursive: true });
+      const tmpFile = path.join(modelsDir, name + '.tmp');
+
+      const res = await axios({ method: 'get', url, responseType: 'stream' });
+      const total = Number(res.headers['content-length'] || 0);
+      let downloaded = 0;
+      const hash = crypto.createHash('sha256');
+      const writer = fs.createWriteStream(tmpFile);
+      res.data.on('data', chunk => {
+        downloaded += chunk.length;
+        hash.update(chunk);
+        const percent = total ? Math.round((downloaded / total) * 100) : null;
+        if (mainWindow && mainWindow.webContents) mainWindow.webContents.send('coqui-download-progress', { url, name, percent, step: 'download' });
+      });
+      res.data.pipe(writer);
+      await new Promise((resolve, reject) => { writer.on('finish', resolve); writer.on('error', reject); });
+
+      const actual = hash.digest('hex');
+      if (expected && expected !== 'replace_with_real_sha256_hash' && actual !== expected.toLowerCase()) {
+        fs.unlinkSync(tmpFile);
+        if (mainWindow && mainWindow.webContents) mainWindow.webContents.send('coqui-download-progress', { url, name, percent: 0, step: 'verify', error: 'checksum_mismatch' });
+        throw new Error(`Checksum mismatch for ${name}`);
+      }
+
+      // extract
+      if (url.endsWith('.tar.gz') || url.endsWith('.tgz')) {
+        await tar.x({ file: tmpFile, cwd: modelsDir });
+        fs.unlinkSync(tmpFile);
+      } else {
+        const dest = path.join(modelsDir, name + path.extname(url));
+        fs.renameSync(tmpFile, dest);
+      }
+
+      if (mainWindow && mainWindow.webContents) mainWindow.webContents.send('coqui-download-progress', { url, name, percent: 100, step: 'done', done: true });
+    }
+    return { status: 'ok' };
+  } catch (err) {
+    console.error('coqui-install-manifest error', err);
+    if (mainWindow && mainWindow.webContents) mainWindow.webContents.send('coqui-download-progress', { error: String(err) });
+    throw err;
+  }
 });

@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   coquiDownloadModel: (opts) => ipcRenderer.invoke('coqui-download-model', opts),
   onCoquiDownloadProgress: (fn) => ipcRenderer.on('coqui-download-progress', (e, p) => fn(p)),
   coquiListModels: () => ipcRenderer.invoke('coqui-list-models')
+  ,
+  coquiInstallManifest: () => ipcRenderer.invoke('coqui-install-manifest')
 });
