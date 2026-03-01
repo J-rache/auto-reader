@@ -42,8 +42,9 @@
     "@octokit/rest": "^19.0.0"
   },
   "build": {
-    "icon": "build/icons/icon-256.png",
     "appId": "com.example.reader",
+    "publish": null,
+    "icon": "build/icons/icon-256.png",
     "files": [
       "electron-main/**/*",
       "renderer/dist/**/*",
@@ -52,6 +53,6 @@
     ],
     "mac": { "target": "dmg" },
     "win": { "target": "nsis" },
-    "linux": { "target": "AppImage", "category": "Utility" }
+    "linux": { "target": ["AppImage", "deb"], "category": "Utility" }
   }
 }
