@@ -35,7 +35,8 @@ jobs:
           fi
       - name: Build renderer
         run: |
-          npm run build --if-present
+          # build just the renderer bundle; packaging happens in the next step
+          npm run build:renderer
       - name: Build electron app (linux)
         run: |
           # Only run electron packaging when GH_TOKEN is provided to avoid build failures in forks or without secrets
