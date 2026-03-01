@@ -39,11 +39,10 @@ jobs:
           fi
 
       - name: Build renderer
-        run: npm run build --if-present
+        run: npm run build:renderer
 
       - name: Build electron app (linux)
-        # We removed the --publish flag; the 'null' in package.json handles it now
-        run: npx electron-builder --linux
+        run: npx electron-builder --linux --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
