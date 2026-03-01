@@ -1,39 +1,40 @@
 name: CI Build
 
-# ensure tokens can write contents, upload artifacts, etc.
-permissions:
-  contents: write
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
+# Granting write permissions so the action can manage releases/artifacts
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # fallback from custom GH_TOKEN to built-in GITHUB_TOKEN
+      # Prioritizes your custom secret, falls back to default if not found
       GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
     strategy:
       matrix:
         node-version: [18]
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+
       - name: Install dependencies
         run: |
-          # use npm install so the workflow works even before lockfile is committed
           npm install
-          # if package-lock.json didn't exist, npm install created one; commit it for future runs
           if [ -f package-lock.json ] && ! git ls-files --error-unmatch package-lock.json > /dev/null 2>&1; then
             git config user.name "github-actions"
             git config user.email "actions@github.com"
@@ -41,15 +42,14 @@ jobs:
             git commit -m "chore: add generated package-lock.json [skip ci]"
             git push origin main || true
           fi
+
       - name: Build renderer
         run: npm run build --if-present
+
       - name: Build electron app (linux)
-        run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "GH_TOKEN not set; skipping electron-builder packaging"
-          else
-            npx electron-builder --linux --publish never
-          fi
+        # Fixed syntax: removed '=' and ensured it targets linux
+        run: npx electron-builder --linux --publish never
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -65,23 +65,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
+
       - name: Install deps
         run: npm install
+
       - name: Build Windows installer
-        run: |
-          if (-not $env:GH_TOKEN) {
-            Write-Output "GH_TOKEN not set; skipping electron-builder packaging on Windows"
-          } else {
-            npx electron-builder --win --publish never
-          }
-        shell: pwsh
+        # Fixed syntax: removed '=' and ensured it targets windows
+        run: npx electron-builder --win --publish never
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
