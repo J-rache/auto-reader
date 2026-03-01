@@ -11,7 +11,7 @@
     "serve-electron": "wait-on http://localhost:5173 && electron .",
     "dev-all": "concurrently \"npm:dev\" \"wait-on http://localhost:5173 && electron .\"",
     "dev:electron": "electron .",
-    "build": "vite build && electron-builder",
+    "build": "vite build && electron-builder --publish=never",
     "build:win": "vite build && electron-builder --windows nsis",
     "test": "echo \"no tests yet\""
   },
