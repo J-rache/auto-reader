@@ -39,11 +39,12 @@ jobs:
           npm run build:renderer
       - name: Build electron app (linux)
         run: |
-          # Only run electron packaging when GH_TOKEN is provided to avoid build failures in forks or without secrets
+          # Only run linux packaging when GH_TOKEN is provided
           if [ -z "$GH_TOKEN" ]; then
             echo "GH_TOKEN not set; skipping electron-builder packaging"
           else
-            npm run build --if-present
+            # perform linux build and prevent publishing
+            npx electron-builder --linux --publish never
           fi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -64,6 +65,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
       - name: Install deps
         run: npm install
       - name: Build Windows installer
@@ -71,7 +73,7 @@ jobs:
           if (-not $env:GH_TOKEN) {
             Write-Output "GH_TOKEN not set; skipping electron-builder packaging on Windows"
           } else {
-            npm run build:win
+            npm run build:win -- --publish never
           }
         shell: pwsh
       - name: Upload Windows artifacts
