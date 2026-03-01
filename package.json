@@ -11,8 +11,11 @@
     "serve-electron": "wait-on http://localhost:5173 && electron .",
     "dev-all": "concurrently \"npm:dev\" \"wait-on http://localhost:5173 && electron .\"",
     "dev:electron": "electron .",
-    "build": "vite build && electron-builder --publish=never",
+    "build": "vite build && set GH_TOKEN= && electron-builder --publish=never",
     "build:win": "vite build && electron-builder --windows nsis",
+    "package-artifacts": "powershell -File scripts/package-artifacts.ps1",
+    "generate-icons": "node scripts/generate-icons.js",
+    "check-ci": "node scripts/check-ci.js",
     "test": "echo \"no tests yet\""
   },
   "dependencies": {
@@ -22,6 +25,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tesseract.js": "^4.0.2",
+    "electron-publisher-never": "file:build/electron-publisher-never.js",
     "axios": "^1.4.0",
     "tar": "^6.1.11"
   },
@@ -31,10 +35,13 @@
     "concurrently": "^8.0.0",
     "wait-on": "^7.0.0",
     "electron-builder": "^24.0.0",
-    "@vitejs/plugin-react": "^4.0.0"
+    "@vitejs/plugin-react": "^4.0.0",
+    "sharp": "^0.32.0",
+    "png-to-ico": "^1.0.0",
+    "@octokit/rest": "^19.0.0"
   },
   "build": {
-    "publish": "never",
+    "icon": "build/icons/icon-256.png",
     "appId": "com.example.reader",
     "files": [
       "electron-main/**/*",
