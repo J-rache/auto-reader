@@ -34,6 +34,7 @@
     "@vitejs/plugin-react": "^4.0.0"
   },
   "build": {
+    "publish": "never",
     "appId": "com.example.reader",
     "files": [
       "electron-main/**/*",
@@ -43,6 +44,6 @@
     ],
     "mac": { "target": "dmg" },
     "win": { "target": "nsis" },
-    "linux": { "target": "AppImage" }
+    "linux": { "target": "AppImage", "category": "Utility" }
   }
 }
