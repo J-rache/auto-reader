@@ -1,0 +1,46 @@
+{
+  "name": "reader-electron",
+  "version": "0.1.0",
+  "private": true,
+  "main": "electron-main/main.js",
+  "scripts": {
+    "dev": "vite",
+    "start": "concurrently \"npm:serve-electron\" \"npm:dev\"",
+    "serve-electron": "wait-on http://localhost:5173 && electron .",
+    "dev-all": "concurrently \"npm:dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:electron": "electron .",
+    "build": "vite build && electron-builder",
+    "build:win": "vite build && electron-builder --windows nsis"
+    "test": "echo \"no tests yet\""
+  },
+  "dependencies": {
+    "electron-store": "^8.0.0",
+    "epubjs": "^0.3.88",
+    "pdfjs-dist": "^2.14.305",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tesseract.js": "^4.0.2",
+    "axios": "^1.4.0",
+    "tar": "^6.1.11"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "vite": "^5.0.0",
+    "concurrently": "^8.0.0",
+    "wait-on": "^7.0.0",
+    "electron-builder": "^24.0.0",
+    "@vitejs/plugin-react": "^4.0.0"
+  },
+  "build": {
+    "appId": "com.example.reader",
+    "files": [
+      "electron-main/**/*",
+      "renderer/dist/**/*",
+      "native-helpers/**/*",
+      "license-server/**/*"
+    ],
+    "mac": { "target": "dmg" },
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" }
+  }
+}

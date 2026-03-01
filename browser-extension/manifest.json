@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Reader Extractor Prototype",
+  "version": "0.1.0",
+  "description": "Prototype extension to extract article content and send to native app via native messaging.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Extract article" }
+}
