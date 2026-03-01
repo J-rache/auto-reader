@@ -6,17 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
-# Granting write permissions so the action can manage releases/artifacts
 permissions:
   contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      # Prioritizes your custom secret, falls back to default if not found
-      GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
-
     strategy:
       matrix:
         node-version: [18]
@@ -47,8 +42,8 @@ jobs:
         run: npm run build --if-present
 
       - name: Build electron app (linux)
-        # Fixed syntax: removed '=' and ensured it targets linux
-        run: npx electron-builder --linux --publish never
+        # We removed the --publish flag; the 'null' in package.json handles it now
+        run: npx electron-builder --linux
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -59,10 +54,7 @@ jobs:
             out
 
   build-windows:
-    runs-on: windows-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
-
+    runs-runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -76,8 +68,7 @@ jobs:
         run: npm install
 
       - name: Build Windows installer
-        # Fixed syntax: removed '=' and ensured it targets windows
-        run: npx electron-builder --win --publish never
+        run: npx electron-builder --win
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
