@@ -1,5 +1,10 @@
 # Reader Electron — Scaffold
 
+## Screenshot
+
+![Auto Reader app](docs/screenshots/auto-reader-app.png)
+
+
 Quickstart:
 
 1. Install dependencies (root and license server)
